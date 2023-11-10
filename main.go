@@ -4,21 +4,25 @@ import (
 	"context"
 	"flag"
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/juliofernandolepore/hotel-reservation/api"
 	"github.com/juliofernandolepore/hotel-reservation/types"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const (
-	uri      = "mongodb://localhost:27017/"
-	dbname   = "hotel"
-	userColl = "users"
-)
+var dbname = "hotel"
+var userColl = "users"
 
 func main() {
+	// starting .env config "uri"
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
+	uri := os.Getenv("uri")
 	// mongo dsn conection
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
@@ -30,8 +34,8 @@ func main() {
 	coll := client.Database(dbname).Collection(userColl)
 	//create a user
 	user1 := types.User{
-		FirstName: "juan",
-		LastName:  "cerutti",
+		FirstName: "joaquin",
+		LastName:  "fenix",
 	}
 	//insert a user
 	res, err := coll.InsertOne(ctx, user1)

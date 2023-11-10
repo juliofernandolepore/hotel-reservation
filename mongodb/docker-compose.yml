@@ -8,6 +8,7 @@ services:
     environment:
        MONGO_INITDB_ROOT_USERNAME: root
        MONGO_INITDB_ROOT_PASSWORD: 123Secret
+       MONGO_INITDB_DATABASE: users
     volumes:
       - ./data:/data/db
       - ./data/log:/var/log/mongodb/

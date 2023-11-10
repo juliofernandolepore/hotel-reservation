@@ -23,3 +23,8 @@ go get go.mongodb.org/mongo-driver/mongo
 ```
 https://www.mongodb.com/docs/v3.0/tutorial/install-mongodb-on-debian/
 ```
+
+## Godotenv https://github.com/joho/godotenv
+```
+go get github.com/joho/godotenv
+```
