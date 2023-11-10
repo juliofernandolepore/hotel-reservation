@@ -12,9 +12,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const uri = "mongodb://localhost:27017"
-const dbname = "hotel"
-const userColl = "users"
+const (
+	uri      = "mongodb://localhost:27017/"
+	dbname   = "hotel"
+	userColl = "users"
+)
 
 func main() {
 	// mongo dsn conection
@@ -32,9 +34,12 @@ func main() {
 		LastName:  "cerutti",
 	}
 	//insert a user
-	coll.InsertOne(ctx, user1)
+	res, err := coll.InsertOne(ctx, user1)
+	if err != nil {
+		log.Fatalln("error al insertar en la collection ", err)
+	}
 	//check client info
-	log.Println(client)
+	log.Println(res)
 
 	//running a server
 	port := flag.String("listen in address", ":5000", "API LISTEN ADDRESS")
