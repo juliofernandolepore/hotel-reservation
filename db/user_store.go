@@ -46,9 +46,9 @@ func (s *MongoUserStore) GetUsers(ctx context.Context) ([]*types.User, error) {
 		log.Println("no results in this query")
 		return nil, err
 	}
-	err = result.Decode(&users)
+	err = result.All(ctx, &users)
 	if err != nil {
-		return []*types.User{}, nil
+		return nil, err
 	}
 	return users, nil
 }

@@ -36,6 +36,7 @@ func main() {
 
 	app.Post("/users", userHandler.HandlePostUser)
 	app.Get("/users/:id", userHandler.HandlerGetUser)
+	app.Get("/users", userHandler.HandlerGetUsers)
 
 	app.Listen(*port)
 }

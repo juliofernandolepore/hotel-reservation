@@ -20,9 +20,13 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 	}
 }
 
-func (h *UserHandler) HandlePostUser(c *fiber.Ctx, u *types.User) error {
+func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 	var params types.CreateUserParams
 	err := c.BodyParser(&params)
+	if err != nil {
+		return err
+	}
+	err = params.Validate()
 	if err != nil {
 		return err
 	}

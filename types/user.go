@@ -1,13 +1,20 @@
 package types
 
 import (
+	"fmt"
 	"log"
+	"regexp"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
-const CryptCost = 12
+const (
+	CryptCost         = 12
+	minFirstName byte = 2
+	minLastName  byte = 2
+	minPassword  byte = 7
+)
 
 type User struct {
 	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
@@ -22,6 +29,27 @@ type CreateUserParams struct {
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
+}
+
+func (params CreateUserParams) Validate() error {
+	if byte(len(params.FirstName)) < minFirstName {
+		return fmt.Errorf("Firstname length short, must be %d char min", minFirstName)
+	}
+	if byte(len(params.LastName)) < minLastName {
+		return fmt.Errorf("Lastname length short, must be %d char min", minLastName)
+	}
+	if byte(len(params.Password)) < minPassword {
+		return fmt.Errorf("Password length short, must be %d char min", minPassword)
+	}
+	if isEmailValid(params.Email) == false {
+		fmt.Errorf("the insert email is incorrect or invalid")
+	}
+	return nil
+}
+
+func isEmailValid(e string) bool {
+	emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	return emailRegex.MatchString(e)
 }
 
 func NewUserFromParams(params CreateUserParams) (*User, error) {
