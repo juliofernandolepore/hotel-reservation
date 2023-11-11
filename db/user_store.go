@@ -13,6 +13,8 @@ import (
 
 type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
+	GetUsers(context.Context) ([]*types.User, error)
+	InsertUser(context.Context, *types.User) (*types.User, error)
 }
 
 type MongoUserStore struct {
@@ -26,6 +28,29 @@ func NewUserMongoStore(c *mongo.Client) *MongoUserStore {
 		client: c,
 		coll:   c.Database(info.DBname).Collection(info.UserColl), //harcoded
 	}
+}
+
+func (s *MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*types.User, error) {
+	res, err := s.coll.InsertOne(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	user.ID = res.InsertedID.(primitive.ObjectID)
+	return user, nil
+}
+
+func (s *MongoUserStore) GetUsers(ctx context.Context) ([]*types.User, error) {
+	var users []*types.User
+	result, err := s.coll.Find(ctx, bson.M{})
+	if err != nil {
+		log.Println("no results in this query")
+		return nil, err
+	}
+	err = result.Decode(&users)
+	if err != nil {
+		return []*types.User{}, nil
+	}
+	return users, nil
 }
 
 func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.User, error) {

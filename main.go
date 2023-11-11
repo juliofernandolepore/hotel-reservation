@@ -34,7 +34,7 @@ func main() {
 
 	app := fiber.New()
 
-	//app.Get("/users", userHandler.HandlerGetUsers)
+	app.Post("/users", userHandler.HandlePostUser)
 	app.Get("/users/:id", userHandler.HandlerGetUser)
 
 	app.Listen(*port)

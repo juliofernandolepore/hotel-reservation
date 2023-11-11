@@ -28,3 +28,7 @@ https://www.mongodb.com/docs/v3.0/tutorial/install-mongodb-on-debian/
 ```
 go get github.com/joho/godotenv
 ```
+## Bcrypt
+```
+go get -u golang.org/x/crypto/bcrypt
+```

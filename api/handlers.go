@@ -1,7 +1,7 @@
 package api
 
 import (
-	"context"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/juliofernandolepore/hotel-reservation/db"
@@ -20,18 +20,35 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 	}
 }
 
-func HandlerGetUsers(c *fiber.Ctx) error {
-	u := types.User{
-		FirstName: "Fer",
-		LastName:  "Lepore",
+func (h *UserHandler) HandlePostUser(c *fiber.Ctx, u *types.User) error {
+	var params types.CreateUserParams
+	err := c.BodyParser(&params)
+	if err != nil {
+		return err
 	}
-	return c.JSON(u)
+	user, err := types.NewUserFromParams(params)
+	if err != nil {
+		return err
+	}
+	userInserted, err := h.userStore.InsertUser(c.Context(), user)
+	if err != nil {
+		return err
+	}
+	return c.JSON(userInserted)
+}
+
+func (h *UserHandler) HandlerGetUsers(c *fiber.Ctx) error {
+	users, err := h.userStore.GetUsers(c.Context())
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return c.JSON(users)
 }
 
 func (h *UserHandler) HandlerGetUser(c *fiber.Ctx) error {
-	ctx := context.Background()
 	id := c.Params("id")
-	user, err := h.userStore.GetUserByID(ctx, id)
+	user, err := h.userStore.GetUserByID(c.Context(), id)
 	if err != nil {
 		return err
 	}
