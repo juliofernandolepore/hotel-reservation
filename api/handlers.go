@@ -54,7 +54,23 @@ func (h *UserHandler) HandlerGetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	user, err := h.userStore.GetUserByID(c.Context(), id)
 	if err != nil {
+		c.JSON(map[string]string{"message": "not found"})
 		return err
 	}
 	return c.JSON(user)
+}
+
+func (h *UserHandler) HandlerUpdateUser(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	err := h.userStore.UpdateUser()
+
+}
+func (h *UserHandler) HandlerDeleteUser(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	err := h.userStore.DeleteUser(c.Context(), userID)
+	if err != nil {
+		c.JSON(map[string]string{"the user is not find to delete:": userID})
+		return err
+	}
+	return c.JSON(map[string]string{"deleted": userID}) //feedback client
 }

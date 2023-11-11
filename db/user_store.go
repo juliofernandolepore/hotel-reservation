@@ -15,6 +15,8 @@ type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
+	DeleteUser(context.Context, string) error
+	UpdateUser(context.Context) error
 }
 
 type MongoUserStore struct {
@@ -66,6 +68,32 @@ func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.Use
 	}
 	log.Println("user finded")
 	return &user, nil
+}
+
+func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	res, err := s.coll.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		log.Println("cant delete user• some wrong", res)
+		return err
+	}
+	return nil
+}
+
+func (s *MongoUserStore) UpdateUser(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	res, err := s.coll.UpdateOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		log.Println("cant update user• some wrong", res)
+		return err
+	}
+	return nil
 }
 
 type PostgresUserStore struct{}
