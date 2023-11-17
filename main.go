@@ -34,7 +34,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Post("/users", userHandler.HandlePostUser)
+	app.Put("users/:id", userHandler.HandlePutUser)
 	app.Get("/users/:id", userHandler.HandlerGetUser)
 	app.Get("/users", userHandler.HandlerGetUsers)
 	app.Delete("/users/:id", userHandler.HandlerDeleteUser)

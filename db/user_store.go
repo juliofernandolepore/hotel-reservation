@@ -11,12 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// DB SERVICES - MODELS
 type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
-	UpdateUser(context.Context) error
+	UpdateUser(ctx context.Context, filter bson.M , params types.UpdateUserParams) error
 }
 
 type MongoUserStore struct {
@@ -83,14 +84,13 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *MongoUserStore) UpdateUser(ctx context.Context, id string) error {
-	oid, err := primitive.ObjectIDFromHex(id)
+// update one (models)
+func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error {
+	update := bson.D{
+		"$set", params.ToBson(),
+	},
+	_, err := s.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return err
-	}
-	res, err := s.coll.UpdateOne(ctx, bson.M{"_id": oid})
-	if err != nil {
-		log.Println("cant update user• some wrong", res)
 		return err
 	}
 	return nil
