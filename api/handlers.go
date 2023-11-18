@@ -11,20 +11,21 @@ import (
 )
 
 type UserHandler struct {
-	//using interface
-	userStore db.UserStore
+	userStore db.UserStore //using interface
 }
 
-// constructor
-func NewUserHandler(userStore db.UserStore) *UserHandler {
+func NewUserHandler(userStore db.UserStore) *UserHandler { // constructor
 	return &UserHandler{
 		userStore: userStore,
 	}
 }
 
 func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
-	var params types.UpdateUserParams
-	userID := c.Params("id")
+	var (
+		params types.UpdateUserParams
+		userID = c.Params("id")
+	)
+
 	oid, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return err
@@ -34,7 +35,7 @@ func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 		return err
 	}
 	filter := bson.M{"_id": oid} // bson.M is a map
-	err = h.userStore.UpdateUser(c.Context(), filter, params)
+	err = h.userStore.UpdateUser(c.Context(), filter, &params)
 	if err != nil {
 		return err
 	}
@@ -60,14 +61,26 @@ func (h *UserHandler) HandlerGetUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-func (h *UserHandler) HandlerUpdateUser(c *fiber.Ctx) error {
-	userID := c.Params("id")
-	err := h.userStore.UpdateUser(c.Context(), userID)
+func (h *UserHandler) HandlerUPostUser(c *fiber.Ctx) error {
+	var params types.CreateUserParams
+
+	err := c.BodyParser(&params)
 	if err != nil {
 		return err
 	}
+	if errors := params.Validate(); len(errors) > 0 {
+		return c.JSON(errors)
+	}
+	user, err := types.NewUserFromParams(params)
+	if err != nil {
+		return err
+	}
+	insertedUser, err := h.userStore.InsertUser(c.Context(), user)
+	if err != nil {
+		return err
+	}
+	return c.JSON(insertedUser)
 }
-
 func (h *UserHandler) HandlerDeleteUser(c *fiber.Ctx) error {
 	userID := c.Params("id")
 	err := h.userStore.DeleteUser(c.Context(), userID)

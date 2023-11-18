@@ -32,12 +32,19 @@ func main() {
 	//handler initialization - instance with methods
 	userHandler := api.NewUserHandler(db.NewUserMongoStore(client))
 
+	hotelStore := db.NewMongoHotelStore(client)
+	roomStore := db.NewMongoRoomStore(client, hotelStore)
+	hotelHandler := api.NewHotelHandler(hotelStore, roomStore)
 	app := fiber.New()
 
-	app.Put("users/:id", userHandler.HandlePutUser)
+	//USER HANDLERS
+	app.Put("/users/:id", userHandler.HandlePutUser)
 	app.Get("/users/:id", userHandler.HandlerGetUser)
+	//app.Post("users/", userHandler.HandlePostUser)
 	app.Get("/users", userHandler.HandlerGetUsers)
 	app.Delete("/users/:id", userHandler.HandlerDeleteUser)
 
+	//HOTEL HANDLERS
+	app.Get("/hotels", hotelHandler.HandleGetHotels)
 	app.Listen(*port)
 }
